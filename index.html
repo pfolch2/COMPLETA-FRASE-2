@@ -531,6 +531,7 @@ dades.forEach((dada, index) => {
         });
     }
 
+
     // LECTOR DE PARAULES EN CATALÀ
     botoAudio.addEventListener("click", () => {
 
@@ -550,72 +551,80 @@ dades.forEach((dada, index) => {
 
         let posicio = 0;
 
-        // Nombre de paraules abans del forat.
-        const paraulesAbans = elementsInici.length;
+        // Seqüència de lectura amb una pausa al lloc de la paraula que falta.
+        const seq = [
+            ...elementsInici.map(element => ({ element: element })),
+            { pausa: true },
+            ...elementsFinal.map(element => ({ element: element }))
+        ];
 
+        function llegirSeguent() {
 
-function llegirSeguent() {
-
-    if (identificador !== reproduccio) return;
-
-    // Hem acabat de llegir totes les paraules.
-    if (posicio >= paraulesVisibles.length) {
-        treureSubratllat();
-        return;
-    }
-
-    // Quan arribem al forat, fem una pausa
-    // i després continuem amb la paraula següent.
-    if (posicio === paraulesAbans) {
-        posicio++;
-
-        setTimeout(() => {
             if (identificador !== reproduccio) return;
-            llegirSeguent();
-        }, 800);
 
-        return;
-    }
+            // Hem acabat de llegir.
+            if (posicio >= seq.length) {
+                treureSubratllat();
+                return;
+            }
 
-    const element = paraulesVisibles[posicio];
+            const item = seq[posicio];
+            posicio++;
 
-    treureSubratllat();
-    element.classList.add("activa");
+            // Fem una pausa al lloc de la paraula que falta.
+            if (item.pausa) {
+                treureSubratllat();
 
-    const veu = new SpeechSynthesisUtterance(
-        element.textContent
-    );
+                setTimeout(() => {
+                    if (identificador !== reproduccio) return;
+                    llegirSeguent();
+                }, 800);
 
-    veu.lang = "ca-ES";
-    veu.rate = 0.85;
-    veu.pitch = 1;
+                return;
+            }
 
-    const veus = window.speechSynthesis.getVoices();
-    const veuCatala = veus.find(v =>
-        v.lang.toLowerCase().startsWith("ca")
-    );
+            const element = item.element;
 
-    if (veuCatala) {
-        veu.voice = veuCatala;
-    }
+            treureSubratllat();
+            element.classList.add("activa");
 
-    veu.onend = () => {
-        if (identificador !== reproduccio) return;
+            const veu = new SpeechSynthesisUtterance(
+                element.textContent
+            );
 
-        posicio++;
-        setTimeout(llegirSeguent, 120);
-    };
+            veu.lang = "ca-ES";
+            veu.rate = 0.85;
+            veu.pitch = 1;
 
-    veu.onerror = () => {
-        if (identificador !== reproduccio) return;
+            const veus = window.speechSynthesis.getVoices();
 
-        posicio++;
-        setTimeout(llegirSeguent, 120);
-    };
+            const veuCatala = veus.find(v =>
+                v.lang.toLowerCase().startsWith("ca")
+            );
 
-    window.speechSynthesis.speak(veu);
-}
-        
+            if (veuCatala) {
+                veu.voice = veuCatala;
+            }
+
+            veu.onend = () => {
+                if (identificador !== reproduccio) return;
+                setTimeout(llegirSeguent, 120);
+            };
+
+            veu.onerror = () => {
+                if (identificador !== reproduccio) return;
+                setTimeout(llegirSeguent, 120);
+            };
+
+            window.speechSynthesis.speak(veu);
+        }
+
+        // INICIA LA LECTURA
+        llegirSeguent();
+
+    });
+
+
     // CORREGIR
     botoCorregir.addEventListener("click", () => {
 
@@ -627,6 +636,7 @@ function llegirSeguent() {
             resultat.className = "resultat incorrecte";
         }
     });
+
 
     // TORNAR A COMENÇAR
     botoReiniciar.addEventListener("click", () => {
