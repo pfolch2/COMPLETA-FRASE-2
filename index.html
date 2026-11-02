@@ -1,0 +1,653 @@
+
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Completem les frases</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #f2f2f2;
+    margin: 0;
+    padding: 20px;
+    color: #111;
+}
+
+h1 {
+    text-align: center;
+    font-size: 30px;
+    margin-bottom: 12px;
+}
+
+.instruccions {
+    text-align: center;
+    font-size: 19px;
+    margin-bottom: 25px;
+}
+
+.contenidor {
+    max-width: 1000px;
+    margin: auto;
+}
+
+.exercici {
+    background: white;
+    border: 2px solid #333;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.numero {
+    font-size: 19px;
+    font-weight: bold;
+    margin-bottom: 12px;
+}
+
+.frase {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 7px;
+    font-size: 25px;
+    line-height: 2;
+    margin-bottom: 15px;
+}
+
+.paraula-audio {
+    display: inline;
+    border-radius: 3px;
+    padding: 2px 1px;
+}
+
+.paraula-audio.activa {
+    background: #ffeb3b;
+    text-decoration: underline;
+    text-decoration-thickness: 3px;
+    text-underline-offset: 4px;
+}
+
+.icona {
+    font-size: 38px;
+    margin: 0 4px;
+    line-height: 1.3;
+}
+
+input {
+    width: 190px;
+    max-width: 45vw;
+    font-size: 22px;
+    padding: 8px;
+    border: 2px solid #333;
+    border-radius: 6px;
+    text-align: center;
+    text-transform: uppercase;
+}
+
+.botons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 9px;
+}
+
+button {
+    border: none;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+button:active {
+    transform: scale(0.97);
+}
+
+.boto-audio {
+    background: #d9eaff;
+}
+
+.boto-corregir {
+    background: #a8d5a2;
+}
+
+.boto-reiniciar {
+    background: #f4c6a6;
+}
+
+.resultat {
+    font-size: 18px;
+    font-weight: bold;
+    margin-top: 12px;
+    min-height: 23px;
+}
+
+.correcte {
+    color: green;
+}
+
+.incorrecte {
+    color: #c00000;
+}
+
+@media (max-width: 600px) {
+    body {
+        padding: 10px;
+    }
+
+    .frase {
+        font-size: 21px;
+    }
+
+    input {
+        width: 145px;
+        font-size: 19px;
+    }
+
+    button {
+        font-size: 14px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<h1>COMPLETEM LES FRASES</h1>
+
+<p class="instruccions">
+MIRA LA IMATGE, ESCOLTA LA FRASE I ESCRIU LA PARAULA QUE FALTA.
+</p>
+
+<div class="contenidor" id="contenidor"></div>
+
+<script>
+
+// FRASES I PARAULES
+
+const dades = [
+
+    // NATURA
+    {
+        paraula: "MUNTANYA",
+        icona: "⛰️",
+        inici: "LA",
+        final: "ÉS MOLT ALTA."
+    },
+    {
+        paraula: "ARBRE",
+        icona: "🌳",
+        inici: "L'",
+        final: "TÉ MOLTES FULLES."
+    },
+    {
+        paraula: "ONADA",
+        icona: "🌊",
+        inici: "UNA",
+        final: "ARRIBA A LA PLATJA."
+    },
+    {
+        paraula: "ESTRELLA",
+        icona: "⭐",
+        inici: "L'",
+        final: "BRILLA AL CEL."
+    },
+    {
+        paraula: "ARC DE SANT MARTÍ",
+        icona: "🌈",
+        inici: "DESPRÉS DE LA PLUJA, VEIEM UN",
+        final: "AL CEL."
+    },
+    {
+        paraula: "VOLCÀ",
+        icona: "🌋",
+        inici: "EL",
+        final: "POT TREURE LAVA."
+    },
+
+    // MENJAR
+    {
+        paraula: "POMA",
+        icona: "🍎",
+        inici: "LA",
+        final: "ÉS UNA FRUITA."
+    },
+    {
+        paraula: "PLÀTAN",
+        icona: "🍌",
+        inici: "EL",
+        final: "ÉS DE COLOR GROC."
+    },
+    {
+        paraula: "TARONJA",
+        icona: "🍊",
+        inici: "LA",
+        final: "TÉ SUC."
+    },
+    {
+        paraula: "PATATA",
+        icona: "🥔",
+        inici: "LA",
+        final: "CREIX SOTA TERRA."
+    },
+    {
+        paraula: "TOMÀQUET",
+        icona: "🍅",
+        inici: "EL",
+        final: "ÉS VERMELL."
+    },
+    {
+        paraula: "FORMATGE",
+        icona: "🧀",
+        inici: "EL",
+        final: "ES FA AMB LLET."
+    },
+    {
+        paraula: "GALETES",
+        icona: "🍪",
+        inici: "M'AGRADA MENJAR",
+        final: "PER BERENAR."
+    },
+
+    // ESCOLA
+    {
+        paraula: "LLAPIS",
+        icona: "✏️",
+        inici: "ESCRIC AMB UN",
+        final: "."
+    },
+    {
+        paraula: "LLIBRE",
+        icona: "📚",
+        inici: "LLEGEIXO UN",
+        final: "A LA BIBLIOTECA."
+    },
+    {
+        paraula: "TISORES",
+        icona: "✂️",
+        inici: "RETALLO EL PAPER AMB LES",
+        final: "."
+    },
+    {
+        paraula: "REGLA",
+        icona: "📏",
+        inici: "FAIG UNA LÍNIA AMB LA",
+        final: "."
+    },
+    {
+        paraula: "MOTXILLA",
+        icona: "🎒",
+        inici: "POSO ELS LLIBRES A LA",
+        final: "."
+    },
+    {
+        paraula: "PINTURES",
+        icona: "🎨",
+        inici: "DIBUIXO AMB LES",
+        final: "."
+    },
+    {
+        paraula: "PAPER",
+        icona: "📄",
+        inici: "ESCRIC EN UN FULL DE",
+        final: "."
+    },
+    {
+        paraula: "ORDINADOR",
+        icona: "💻",
+        inici: "TREBALLO AMB L'",
+        final: "A CLASSE."
+    },
+
+    // TRANSPORTS
+    {
+        paraula: "COTXE",
+        icona: "🚗",
+        inici: "EL",
+        final: "TÉ QUATRE RODES."
+    },
+    {
+        paraula: "AUTOBÚS",
+        icona: "🚌",
+        inici: "VAIG A L'ESCOLA AMB",
+        final: "."
+    },
+    {
+        paraula: "BICICLETA",
+        icona: "🚲",
+        inici: "VAIG PEL CARRER AMB LA",
+        final: "."
+    },
+    {
+        paraula: "TREN",
+        icona: "🚆",
+        inici: "EL",
+        final: "PORTA PASSATGERS."
+    },
+    {
+        paraula: "AVIÓ",
+        icona: "✈️",
+        inici: "L'",
+        final: "VOLA PEL CEL."
+    },
+    {
+        paraula: "BARCA",
+        icona: "⛵",
+        inici: "LA",
+        final: "NAVEGA PEL MAR."
+    },
+    {
+        paraula: "MOTO",
+        icona: "🏍️",
+        inici: "LA",
+        final: "TÉ DUES RODES."
+    },
+    {
+        paraula: "HELICÒPTER",
+        icona: "🚁",
+        inici: "L'",
+        final: "POT VOLAR."
+    },
+
+    // ROBA
+    {
+        paraula: "SAMARRETA",
+        icona: "👕",
+        inici: "EM POSO UNA",
+        final: "DE COLOR BLAU."
+    },
+    {
+        paraula: "PANTALONS",
+        icona: "👖",
+        inici: "EM POSO ELS",
+        final: "ABANS DE SORTIR."
+    },
+    {
+        paraula: "SABATES",
+        icona: "👟",
+        inici: "EM POSO LES",
+        final: "ALS PEUS."
+    },
+    {
+        paraula: "VESTIT",
+        icona: "👗",
+        inici: "LA NENA PORTA UN",
+        final: "VERMELL."
+    },
+
+    // MÚSICA
+    {
+        paraula: "GUITARRA",
+        icona: "🎸",
+        inici: "TOCO LA",
+        final: "I FAIG MÚSICA."
+    },
+    {
+        paraula: "PIANO",
+        icona: "🎹",
+        inici: "EL",
+        final: "TÉ MOLTES TELES."
+    },
+    {
+        paraula: "TAMBOR",
+        icona: "🥁",
+        inici: "TOCO EL",
+        final: "AMB LES BAQUETES."
+    },
+    {
+        paraula: "VIOLÍ",
+        icona: "🎻",
+        inici: "EL",
+        final: "ÉS UN INSTRUMENT MUSICAL."
+    }
+
+];
+
+const contenidor = document.getElementById("contenidor");
+
+function normalitzar(text) {
+    return text
+        .trim()
+        .toUpperCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/\s+/g, " ");
+}
+
+// CREA LES PARAULES DE LA FRASE
+function crearParaules(text, grup) {
+    const elements = [];
+
+    // Manté la puntuació enganxada a la paraula.
+    const trossos = text.trim().split(/\s+/);
+
+    trossos.forEach((tros, index) => {
+        const span = document.createElement("span");
+        span.className = "paraula-audio";
+        span.textContent = tros;
+        span.dataset.grup = grup;
+        span.dataset.index = index;
+        elements.push(span);
+    });
+
+    return elements;
+}
+
+// CREA LES ACTIVITATS
+dades.forEach((dada, index) => {
+
+    const exercici = document.createElement("div");
+    exercici.className = "exercici";
+
+    const numero = document.createElement("div");
+    numero.className = "numero";
+    numero.textContent = "FRASE " + (index + 1);
+
+    const frase = document.createElement("div");
+    frase.className = "frase";
+
+    const elementsInici = crearParaules(dada.inici, "inici");
+    const elementsFinal = crearParaules(dada.final, "final");
+
+    elementsInici.forEach((element, i) => {
+        frase.appendChild(element);
+        if (i < elementsInici.length - 1) {
+            frase.appendChild(document.createTextNode(" "));
+        }
+    });
+
+    // ICONA I ESPAI PER ESCRIURE
+    const icona = document.createElement("span");
+    icona.className = "icona";
+    icona.textContent = dada.icona;
+    icona.setAttribute("aria-label", "Imatge de referència");
+
+    const entrada = document.createElement("input");
+    entrada.type = "text";
+    entrada.placeholder = "........";
+    entrada.autocomplete = "off";
+    entrada.setAttribute("aria-label", "Escriu la paraula que falta");
+
+    frase.appendChild(document.createTextNode(" "));
+    frase.appendChild(icona);
+    frase.appendChild(entrada);
+
+    frase.appendChild(document.createTextNode(" "));
+
+    elementsFinal.forEach((element, i) => {
+        frase.appendChild(element);
+        if (i < elementsFinal.length - 1) {
+            frase.appendChild(document.createTextNode(" "));
+        }
+    });
+
+    // BOTONS
+    const botons = document.createElement("div");
+    botons.className = "botons";
+
+    const botoAudio = document.createElement("button");
+    botoAudio.className = "boto-audio";
+    botoAudio.textContent = "▶ PLAY";
+
+    const botoCorregir = document.createElement("button");
+    botoCorregir.className = "boto-corregir";
+    botoCorregir.textContent = "CORREGIR";
+
+    const botoReiniciar = document.createElement("button");
+    botoReiniciar.className = "boto-reiniciar";
+    botoReiniciar.textContent = "TORNAR A COMENÇAR";
+
+    const resultat = document.createElement("div");
+    resultat.className = "resultat";
+
+    botons.appendChild(botoAudio);
+    botons.appendChild(botoCorregir);
+    botons.appendChild(botoReiniciar);
+
+    exercici.appendChild(numero);
+    exercici.appendChild(frase);
+    exercici.appendChild(botons);
+    exercici.appendChild(resultat);
+
+    contenidor.appendChild(exercici);
+
+    // TOTS ELS ELEMENTS QUE ES PODEN LLEGIR
+    const paraulesVisibles = [
+        ...elementsInici,
+        ...elementsFinal
+    ];
+
+    let reproduccio = 0;
+
+    function treureSubratllat() {
+        paraulesVisibles.forEach(element => {
+            element.classList.remove("activa");
+        });
+    }
+
+    // LECTOR DE PARAULES EN CATALÀ
+    botoAudio.addEventListener("click", () => {
+
+        if (!("speechSynthesis" in window)) {
+            resultat.textContent = "EL NAVEGADOR NO ADMET LECTURA D'ÀUDIO.";
+            resultat.className = "resultat incorrecte";
+            return;
+        }
+
+        // Atura qualsevol lectura anterior.
+        window.speechSynthesis.cancel();
+
+        reproduccio++;
+        const identificador = reproduccio;
+
+        treureSubratllat();
+
+        let posicio = 0;
+
+        // Nombre de paraules abans del forat.
+        const paraulesAbans = elementsInici.length;
+
+        function llegirSeguent() {
+
+            // Si s'ha iniciat una altra lectura, atura aquesta.
+            if (identificador !== reproduccio) return;
+
+            if (posicio >= paraulesVisibles.length) {
+                treureSubratllat();
+                return;
+            }
+
+            // Quan arribem al forat, fem una pausa.
+            if (posicio === paraulesAbans) {
+                setTimeout(() => {
+                    if (identificador !== reproduccio) return;
+                    llegirSeguent();
+                }, 800);
+                posicio++;
+                return;
+            }
+
+            const element = paraulesVisibles[posicio];
+
+            treureSubratllat();
+            element.classList.add("activa");
+
+            const veu = new SpeechSynthesisUtterance(
+                element.textContent
+            );
+
+            veu.lang = "ca-ES";
+            veu.rate = 0.85;
+            veu.pitch = 1;
+
+            const veus = window.speechSynthesis.getVoices();
+            const veuCatala = veus.find(v =>
+                v.lang.toLowerCase().startsWith("ca")
+            );
+
+            if (veuCatala) {
+                veu.voice = veuCatala;
+            }
+
+            veu.onend = () => {
+                if (identificador !== reproduccio) return;
+
+                posicio++;
+
+                setTimeout(llegirSeguent, 120);
+            };
+
+            veu.onerror = () => {
+                if (identificador !== reproduccio) return;
+
+                posicio++;
+                setTimeout(llegirSeguent, 120);
+            };
+
+            window.speechSynthesis.speak(veu);
+        }
+
+        llegirSeguent();
+    });
+
+    // CORREGIR
+    botoCorregir.addEventListener("click", () => {
+
+        if (normalitzar(entrada.value) === normalitzar(dada.paraula)) {
+            resultat.textContent = "MOLT BÉ! RESPOSTA CORRECTA!";
+            resultat.className = "resultat correcte";
+        } else {
+            resultat.textContent = "TORNA-HO A PROVAR!";
+            resultat.className = "resultat incorrecte";
+        }
+    });
+
+    // TORNAR A COMENÇAR
+    botoReiniciar.addEventListener("click", () => {
+
+        entrada.value = "";
+        resultat.textContent = "";
+        resultat.className = "resultat";
+
+        reproduccio++;
+        window.speechSynthesis.cancel();
+        treureSubratllat();
+    });
+
+});
+
+// CARREGA LES VEUS DISPONIBLES
+if ("speechSynthesis" in window) {
+    window.speechSynthesis.getVoices();
+}
+
+</script>
+
+</body>
+</html>
