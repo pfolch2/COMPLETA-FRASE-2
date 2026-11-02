@@ -553,69 +553,69 @@ dades.forEach((dada, index) => {
         // Nombre de paraules abans del forat.
         const paraulesAbans = elementsInici.length;
 
-        function llegirSeguent() {
 
-            // Si s'ha iniciat una altra lectura, atura aquesta.
+function llegirSeguent() {
+
+    if (identificador !== reproduccio) return;
+
+    // Hem acabat de llegir totes les paraules.
+    if (posicio >= paraulesVisibles.length) {
+        treureSubratllat();
+        return;
+    }
+
+    // Quan arribem al forat, fem una pausa
+    // i després continuem amb la paraula següent.
+    if (posicio === paraulesAbans) {
+        posicio++;
+
+        setTimeout(() => {
             if (identificador !== reproduccio) return;
+            llegirSeguent();
+        }, 800);
 
-            if (posicio >= paraulesVisibles.length) {
-                treureSubratllat();
-                return;
-            }
+        return;
+    }
 
-            // Quan arribem al forat, fem una pausa.
-            if (posicio === paraulesAbans) {
-                setTimeout(() => {
-                    if (identificador !== reproduccio) return;
-                    llegirSeguent();
-                }, 800);
-                posicio++;
-                return;
-            }
+    const element = paraulesVisibles[posicio];
 
-            const element = paraulesVisibles[posicio];
+    treureSubratllat();
+    element.classList.add("activa");
 
-            treureSubratllat();
-            element.classList.add("activa");
+    const veu = new SpeechSynthesisUtterance(
+        element.textContent
+    );
 
-            const veu = new SpeechSynthesisUtterance(
-                element.textContent
-            );
+    veu.lang = "ca-ES";
+    veu.rate = 0.85;
+    veu.pitch = 1;
 
-            veu.lang = "ca-ES";
-            veu.rate = 0.85;
-            veu.pitch = 1;
+    const veus = window.speechSynthesis.getVoices();
+    const veuCatala = veus.find(v =>
+        v.lang.toLowerCase().startsWith("ca")
+    );
 
-            const veus = window.speechSynthesis.getVoices();
-            const veuCatala = veus.find(v =>
-                v.lang.toLowerCase().startsWith("ca")
-            );
+    if (veuCatala) {
+        veu.voice = veuCatala;
+    }
 
-            if (veuCatala) {
-                veu.voice = veuCatala;
-            }
+    veu.onend = () => {
+        if (identificador !== reproduccio) return;
 
-            veu.onend = () => {
-                if (identificador !== reproduccio) return;
+        posicio++;
+        setTimeout(llegirSeguent, 120);
+    };
 
-                posicio++;
+    veu.onerror = () => {
+        if (identificador !== reproduccio) return;
 
-                setTimeout(llegirSeguent, 120);
-            };
+        posicio++;
+        setTimeout(llegirSeguent, 120);
+    };
 
-            veu.onerror = () => {
-                if (identificador !== reproduccio) return;
-
-                posicio++;
-                setTimeout(llegirSeguent, 120);
-            };
-
-            window.speechSynthesis.speak(veu);
-        }
-
-        llegirSeguent();
-    });
-
+    window.speechSynthesis.speak(veu);
+}
+        
     // CORREGIR
     botoCorregir.addEventListener("click", () => {
 
